@@ -4,18 +4,18 @@ namespace Managers
 {
     public class SingletonManager<T> : MonoBehaviour where T: SingletonManager<T>
     {
-        private static volatile T instance = null;
+        private static volatile T _instance = null;
 
         public static T Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = FindObjectOfType(typeof(T)) as T;
+                    _instance = FindObjectOfType(typeof(T)) as T;
                 }
 
-                return instance;
+                return _instance;
             }
         }
     }
