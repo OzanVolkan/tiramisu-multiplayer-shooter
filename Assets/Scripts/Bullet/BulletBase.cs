@@ -7,7 +7,7 @@ namespace Bullet
 {
     public abstract class BulletBase : MonoBehaviour
     {
-        private readonly float _baseSpeed = 10f;
+        private readonly float _baseSpeed = 5f;
         
         #region Properties
 

@@ -6,6 +6,8 @@ namespace Managers
     public enum GameEvent
     {
         OnHitTarget,
+        OnJoinedRoom,
+        OnPropertiesAssigned
     }
 
     public static class EventManager
