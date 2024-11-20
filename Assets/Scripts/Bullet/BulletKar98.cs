@@ -8,6 +8,7 @@ namespace Bullet
         {
             Damage = 2;
             SpeedMultiplier = 3f;
+            BulletType = "Kar98Bullets";
         }
         
     }

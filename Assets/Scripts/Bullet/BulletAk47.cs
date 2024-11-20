@@ -8,6 +8,7 @@ namespace Bullet
         {
             Damage = 1;
             SpeedMultiplier = 1f;
+            BulletType = "Ak47Bullets";
         }
     }
 }
