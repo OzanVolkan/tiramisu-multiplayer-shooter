@@ -42,9 +42,11 @@ namespace Managers
         
         public override void OnPlayerPropertiesUpdate(Photon.Realtime.Player targetPlayer, Hashtable changedProps)
         {
+            if (!targetPlayer.IsLocal)
+                return;
+            
             if (changedProps.ContainsKey("Team"))
             {
-                Debug.Log($"{targetPlayer.NickName} has joined team {changedProps["Team"]}");
                 EventManager.Broadcast(GameEvent.OnPropertiesAssigned);
             }
         }

@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace Managers
 {
-    public class GameManager : MonoBehaviour
+    public class GameManager : SingletonManager<GameManager>
     {
         [SerializeField] private GameObject _playerPrefab;
 
-        #region PlayerTransformValues
+        #region PlayerValues
 
         private readonly Vector3 _blueTeamPos = new Vector3(-7.5f, 1f, 0f);
         private readonly Vector3 _redTeamPos = new Vector3(7.5f, 1f, 0f);
@@ -23,6 +23,9 @@ namespace Managers
 
         private readonly string _teamBlue = "Blue";
         private readonly string _teamRed = "Red";
+
+        public string TeamBlue => _teamBlue;
+        public string TeamRed => _teamRed;
 
         #endregion
 
@@ -49,34 +52,36 @@ namespace Managers
             if (PhotonNetwork.InRoom)
             {
                 GameObject newPlayer = PhotonNetwork.Instantiate(_playerPrefab.name, Vector3.zero, Quaternion.identity);
-
                 PhotonView photonView = newPlayer.GetComponent<PhotonView>();
 
                 Vector3 spawnPos = Vector3.zero;
                 Vector3 spawnRotation = Vector3.zero;
-                
-                print("teammmm: " + (string)PhotonNetwork.LocalPlayer.CustomProperties["Team"]);
 
-                if ((string)PhotonNetwork.LocalPlayer.CustomProperties["Team"] == _teamBlue)
+                var team = (string)PhotonNetwork.LocalPlayer.CustomProperties["Team"];
+
+                if (team == _teamBlue)
                 {
                     spawnPos = _blueTeamPos;
                     spawnRotation = _blueTeamRotation;
                 }
-                else if ((string)PhotonNetwork.LocalPlayer.CustomProperties["Team"] == _teamRed)
+                else if (team == _teamRed)
                 {
                     spawnPos = _redTeamPos;
                     spawnRotation = _redTeamRotation;
                 }
 
-                // var spawnPos = photonView.IsMine  ? _player1Pos : _player2Pos;
-
                 newPlayer.transform.position = spawnPos;
                 newPlayer.transform.rotation = Quaternion.Euler(spawnRotation);
+
+                photonView.RPC("SetPlayerMat", RpcTarget.AllBuffered, team);
             }
         }
 
         private void AssignTeam()
         {
+            if (PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("Team"))
+                return;
+
             var assignedTeam = PhotonNetwork.CurrentRoom.PlayerCount - 1 % 2 == 0 ? _teamBlue : _teamRed;
             Hashtable playerProperties = new Hashtable { { "Team", assignedTeam } };
             PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);

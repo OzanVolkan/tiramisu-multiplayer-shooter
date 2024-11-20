@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 813268352660915003}
   - component: {fileID: -8734217418267108013}
   - component: {fileID: 8754654314112953441}
+  - component: {fileID: 2726153092956206061}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -152,6 +153,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59043d2097d79c14486d184f026792f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _renderer: {fileID: 5912740311029817931}
+  _blueMat: {fileID: 2100000, guid: 283fd4cc700fee44690a35493dea579b, type: 2}
+  _redMat: {fileID: 2100000, guid: 54219de63fef88a44b3e799da7124a9d, type: 2}
 --- !u!114 &2175120136540088229
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -201,8 +205,8 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
-  - {fileID: 2175120136540088229}
   - {fileID: 8754654314112953441}
+  - {fileID: 2726153092956206061}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -222,6 +226,19 @@ MonoBehaviour:
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 0
   m_UseLocal: 0
+--- !u!114 &2726153092956206061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2112237284447879875}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35144820bcc25444bb8f0fd767d9423e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SmoothingDelay: 0.1
 --- !u!1 &2739218139691966759
 GameObject:
   m_ObjectHideFlags: 0
