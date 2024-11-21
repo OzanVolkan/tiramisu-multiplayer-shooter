@@ -84,7 +84,7 @@ namespace Managers
                 if (pool != null)
                 {
                     var obj = CreateNewObject(pool.Prefab);
-                    objectPool.Enqueue(obj);
+                    // objectPool.Enqueue(obj);
                     obj.SetActive(true);
                     return obj;
                 }

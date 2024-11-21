@@ -14,11 +14,17 @@ namespace Weapon
             BulletType = "Kar98Bullets";
         }
 
-        protected override void Shoot()
+        [PunRPC]
+        public void ShootRPC()
         {
             var bullet = PoolingManager.Instance.GetObject(BulletType);
             bullet.transform.position = _firePoint.position;
-            
+        }
+
+        protected override void Shoot()
+        {
+            _photonView.RPC(nameof(ShootRPC), RpcTarget.AllBuffered);
+
             Debug.Log("Shot with Kar98!");
         }
     }

@@ -20,17 +20,15 @@ namespace Bullet
 
         #endregion
         
-        private void Update()
+        private void FixedUpdate()
         {
-            if (_photonView.IsMine)
-            {
-                Move();
-            }
+            Move();
         }
 
         private void Move()
         {
             transform.Translate(transform.right * (Time.fixedDeltaTime * SpeedMultiplier * _baseSpeed));
+            Debug.Log($"Ping: {PhotonNetwork.GetPing()}ms");
         }
 
         private void OnTriggerEnter(Collider other)
@@ -44,6 +42,10 @@ namespace Bullet
             {
                 Debug.Log("Missed the target!");
             }
+            else
+            {
+                return;
+            }
 
             _photonView.RPC(nameof(ReturnBullet), RpcTarget.AllBuffered);
         }
@@ -51,6 +53,8 @@ namespace Bullet
         [PunRPC]
         public void ReturnBullet()
         {
+            if (!_photonView.IsMine) return;
+
             PoolingManager.Instance.ReturnObject(BulletType, gameObject);
         }
     }

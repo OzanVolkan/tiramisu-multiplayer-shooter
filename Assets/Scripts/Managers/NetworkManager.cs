@@ -12,6 +12,9 @@ namespace Managers
         private void Start()
         {
             PhotonNetwork.ConnectUsingSettings();
+
+            PhotonNetwork.SendRate = 30; // Saniyede 30 kez veri gönder.
+            PhotonNetwork.SerializationRate = 15; // Senkronizasyon için saniyede 15 kez veri gönder.
         }
 
         public override void OnConnectedToMaster()

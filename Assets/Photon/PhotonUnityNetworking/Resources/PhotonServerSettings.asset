@@ -51,6 +51,8 @@ MonoBehaviour:
   - Shoot
   - RequestObject
   - SendObjectToClient
+  - CreateNewObject
+  - ShootRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

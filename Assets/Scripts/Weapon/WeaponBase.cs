@@ -1,9 +1,11 @@
+using Photon.Pun;
 using UnityEngine;
 
 namespace Weapon
 {
     public abstract class WeaponBase : MonoBehaviour
     {
+        [SerializeField] protected PhotonView _photonView;
         [SerializeField] protected Transform _firePoint;
         private float _lastFireTime;
 
