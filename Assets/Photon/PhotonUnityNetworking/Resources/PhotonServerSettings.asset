@@ -41,6 +41,8 @@ MonoBehaviour:
   - RespawnSpaceship
   - SetPlayerMat
   - Olala
+  - SetPlayerCanvasValues
+  - SetPlayerCanvasTransformValues
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
