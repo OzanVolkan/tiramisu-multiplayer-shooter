@@ -1,4 +1,5 @@
 using System;
+using Photon.Pun;
 using UnityEngine;
 using Weapon;
 
@@ -6,6 +7,8 @@ namespace Player
 {
     public class PlayerCombat : MonoBehaviour
     {
+        [SerializeField] private PhotonView _photonView;
+        
         [SerializeField] private GameObject[] _weapons;
         [SerializeField] private WeaponBase[] _weaponInstances;
 
@@ -20,10 +23,22 @@ namespace Player
 
         private void Update()
         {
-            HandleWeaponSwitching();
-            HandleShooting();
+            if(!_photonView.IsMine)
+                return;
+
+            if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                int weaponIndex = Input.GetKeyDown(KeyCode.Alpha1) ? 0 : 1;
+                _photonView.RPC(nameof(HandleWeaponSwitching), RpcTarget.AllBuffered, weaponIndex);
+            }
+
+            if (Input.GetKeyDown(KeyCode.Space) || Input.GetKey(KeyCode.Space))
+            {
+                _photonView.RPC(nameof(HandleShooting), RpcTarget.AllBuffered);
+            }
         }
 
+        [PunRPC]
         private void HandleShooting()
         {
             if (_currentWeapon == null) return;
@@ -39,21 +54,8 @@ namespace Player
 
         #region WeaponSelection
 
-        private void HandleWeaponSwitching()
-        {
-            if (Input.GetKeyDown(KeyCode.Alpha1) && _weaponIndex != 0)
-            {
-                ActivateWeapon(0);
-                Debug.Log("Kar98 selected!");
-            }
-            else if (Input.GetKeyDown(KeyCode.Alpha2) && _weaponIndex != 1)
-            {
-                ActivateWeapon(1);
-                Debug.Log("AK-47 selected!");
-            }
-        }
-
-        private void ActivateWeapon(int index)
+        [PunRPC]
+        private void HandleWeaponSwitching(int index)
         {
             if (index < 0 || index >= _weapons.Length) return;
 
@@ -68,7 +70,7 @@ namespace Player
 
         private void SetDefaultWeapon()
         {
-            ActivateWeapon(0);
+            HandleWeaponSwitching(0);
         }
 
         #endregion

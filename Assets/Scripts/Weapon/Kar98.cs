@@ -1,5 +1,8 @@
 using Managers;
+using Photon.Pun;
 using UnityEngine;
+using System.Collections.Generic;
+using System;
 
 namespace Weapon
 {

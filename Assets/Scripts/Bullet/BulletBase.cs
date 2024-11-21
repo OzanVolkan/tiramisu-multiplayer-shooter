@@ -1,14 +1,17 @@
 using System;
 using System.Collections;
 using Managers;
+using Photon.Pun;
 using UnityEngine;
 
 namespace Bullet
 {
     public abstract class BulletBase : MonoBehaviour
     {
+        [SerializeField] private PhotonView _photonView;
+
         private readonly float _baseSpeed = 5f;
-        
+
         #region Properties
 
         protected int Damage { get; set; }
@@ -16,11 +19,15 @@ namespace Bullet
         protected string BulletType { get; set; }
 
         #endregion
+        
         private void Update()
         {
-            Move();
+            if (_photonView.IsMine)
+            {
+                Move();
+            }
         }
-        
+
         private void Move()
         {
             transform.Translate(transform.right * (Time.fixedDeltaTime * SpeedMultiplier * _baseSpeed));
@@ -37,7 +44,13 @@ namespace Bullet
             {
                 Debug.Log("Missed the target!");
             }
-            
+
+            _photonView.RPC(nameof(ReturnBullet), RpcTarget.AllBuffered);
+        }
+
+        [PunRPC]
+        public void ReturnBullet()
+        {
             PoolingManager.Instance.ReturnObject(BulletType, gameObject);
         }
     }

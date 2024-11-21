@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 9159016838172995426}
   - component: {fileID: 3582685895978655140}
   - component: {fileID: -271270839893229965}
+  - component: {fileID: 5718267778864824192}
+  - component: {fileID: 5612028739636668837}
   m_Layer: 0
   m_Name: Kar98Bullet
   m_TagString: Untagged
@@ -118,3 +120,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b03ec93a1f243bb4bbc6012273103f2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _photonView: {fileID: 5718267778864824192}
+--- !u!114 &5718267778864824192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1728659829578009080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 1
+  observableSearch: 2
+  ObservedComponents:
+  - {fileID: 5612028739636668837}
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
+--- !u!114 &5612028739636668837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1728659829578009080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizePosition: 1
+  m_SynchronizeRotation: 0
+  m_SynchronizeScale: 0
+  m_UseLocal: 0

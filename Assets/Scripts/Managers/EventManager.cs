@@ -7,6 +7,7 @@ namespace Managers
     {
         OnHitTarget,
         OnJoinedRoom,
+        OnCreatedRoom,
         OnPropertiesAssigned
     }
 

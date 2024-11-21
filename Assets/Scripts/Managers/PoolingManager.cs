@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Data;
+using Photon.Pun;
 using UnityEngine;
 
 namespace Managers
@@ -22,18 +25,27 @@ namespace Managers
         }
 
         [SerializeField] private List<Pool> _pools;
-        private Dictionary<string, Queue<GameObject>> _poolDictionary;
+        private Dictionary<string, Queue<GameObject>> _poolDictionary = new ();
 
-        private void Awake()
+        //****BU LİSTE SİLİNECEK
+        public List<GameObject> testList;
+
+        private void OnEnable()
         {
-            InitializePools();
+            EventManager.AddHandler(GameEvent.OnJoinedRoom, new Action(InitializePools));
+        }
+
+        private void OnDisable()
+        {
+            EventManager.RemoveHandler(GameEvent.OnJoinedRoom, new Action(InitializePools));
         }
 
         // Havuzları başlatır ve her nesne tipi için kuyruğu oluşturur.
         private void InitializePools()
         {
-            _poolDictionary = new Dictionary<string, Queue<GameObject>>();
-
+            // if (!PhotonNetwork.IsMasterClient)
+            //     return;
+            
             foreach (var pool in _pools)
             {
                 Queue<GameObject> objectPool = new Queue<GameObject>();
@@ -42,6 +54,7 @@ namespace Managers
                 {
                     GameObject obj = CreateNewObject(pool.Prefab);
                     objectPool.Enqueue(obj);
+                    testList.Add(obj);
                 }
 
                 _poolDictionary.Add(pool.PoolName, objectPool);
@@ -71,6 +84,7 @@ namespace Managers
                 if (pool != null)
                 {
                     var obj = CreateNewObject(pool.Prefab);
+                    objectPool.Enqueue(obj);
                     obj.SetActive(true);
                     return obj;
                 }
@@ -91,13 +105,13 @@ namespace Managers
                 return;
             }
 
-            obj.SetActive(false);
             _poolDictionary[poolName].Enqueue(obj);
+            obj.SetActive(false);
         }
 
         private GameObject CreateNewObject(GameObject prefab)
         {
-            var newObj = Instantiate(prefab);
+            var newObj = PhotonNetwork.Instantiate(prefab.name, Vector3.up * 100f, Quaternion.identity);
             newObj.SetActive(false);
             return newObj;
         }

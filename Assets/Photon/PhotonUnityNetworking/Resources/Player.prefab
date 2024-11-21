@@ -182,6 +182,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 498f8e06b8eeb9849b53327cf5b41ae3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _photonView: {fileID: 5742354188420676369}
   _weapons:
   - {fileID: 7758076311445570522}
   - {fileID: 8332578404146528720}

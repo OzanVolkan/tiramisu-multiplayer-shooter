@@ -1,4 +1,3 @@
-using System;
 using ExitGames.Client.Photon;
 using UnityEngine;
 using Photon.Pun;
@@ -36,19 +35,27 @@ namespace Managers
         public override void OnJoinedRoom()
         {
             Debug.Log($"Joined Room: {PhotonNetwork.CurrentRoom.Name}");
-            
+
             EventManager.Broadcast(GameEvent.OnJoinedRoom);
         }
-        
+
         public override void OnPlayerPropertiesUpdate(Photon.Realtime.Player targetPlayer, Hashtable changedProps)
         {
             if (!targetPlayer.IsLocal)
                 return;
-            
+
             if (changedProps.ContainsKey("Team"))
             {
                 EventManager.Broadcast(GameEvent.OnPropertiesAssigned);
             }
+        }
+
+        public override void OnCreatedRoom()
+        {
+            // if (!PhotonNetwork.IsMasterClient)
+            //     return;
+
+            // EventManager.Broadcast(GameEvent.OnCreatedRoom);
         }
     }
 }
