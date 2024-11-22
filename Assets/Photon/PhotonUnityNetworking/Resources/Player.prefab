@@ -158,6 +158,7 @@ MonoBehaviour:
   _blueMat: {fileID: 2100000, guid: 283fd4cc700fee44690a35493dea579b, type: 2}
   _redMat: {fileID: 2100000, guid: 54219de63fef88a44b3e799da7124a9d, type: 2}
   _playerCanvasTrans: {fileID: 6618343928754825103}
+  _healthText: {fileID: 2077281009805914088}
 --- !u!114 &5862222135807059702
 MonoBehaviour:
   m_ObjectHideFlags: 0

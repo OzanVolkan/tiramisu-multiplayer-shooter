@@ -1,6 +1,8 @@
 using System;
+using Interfaces;
 using Managers;
 using Photon.Pun;
+using TMPro;
 using UnityEngine;
 
 namespace Player
@@ -20,6 +22,7 @@ namespace Player
         #region PlayerCanvasValues
 
         [SerializeField] private Transform _playerCanvasTrans;
+        [SerializeField] private TextMeshProUGUI _healthText;
         private readonly Vector3 _canvasRotation = new Vector3(90f, 0f, 0f);
         private readonly float _canvasZ = 0.75f;
 
@@ -30,35 +33,39 @@ namespace Player
 
         private void Start()
         {
-            _health = _maxHealth;
-
             if (!_photonView.IsMine)
                 return;
 
             _photonView.RPC(nameof(SetPlayerCanvasTransformValues), RpcTarget.AllBuffered);
+            _photonView.RPC(nameof(SetPlayerHealthValues), RpcTarget.AllBuffered, _maxHealth);
         }
 
         private void OnEnable()
         {
-            EventManager.AddHandler(GameEvent.OnHitTarget, new Action<int>(TakeDamage));
+            EventManager.AddHandler(GameEvent.OnHitTarget, new Action<GameObject, int>(TakeDamage));
         }
 
         private void OnDisable()
         {
-            EventManager.RemoveHandler(GameEvent.OnHitTarget, new Action<int>(TakeDamage));
+            EventManager.RemoveHandler(GameEvent.OnHitTarget, new Action<GameObject, int>(TakeDamage));
         }
 
-        private void TakeDamage(int damage)
+        public void TakeDamage(GameObject go, int damage)
         {
-            _health = Mathf.Clamp(_health - damage, 0, _maxHealth);
+            if (go != gameObject) return;
+
+            var health = Mathf.Clamp(_health - damage, 0, _maxHealth);
+
+            _photonView.RPC(nameof(SetPlayerHealthValues), RpcTarget.AllBuffered, health);
 
             if (_health <= 0)
             {
-                HandleDeath();
+                _photonView.RPC(nameof(HandleDeath), RpcTarget.AllBuffered);
             }
         }
 
-        private void HandleDeath()
+        [PunRPC]
+        public void HandleDeath()
         {
             Debug.Log("Game Over!");
         }
@@ -86,6 +93,13 @@ namespace Player
             _playerCanvasTrans.rotation = Quaternion.Euler(_canvasRotation);
             _playerCanvasTrans.position =
                 new Vector3(_playerCanvasTrans.position.x, _playerCanvasTrans.position.y, _canvasZ);
+        }
+
+        [PunRPC]
+        private void SetPlayerHealthValues(int newHealthValue)
+        {
+            _health = newHealthValue;
+            _healthText.text = "HP: " + _health;
         }
     }
 }

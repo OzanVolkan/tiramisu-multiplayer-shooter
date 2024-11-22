@@ -18,14 +18,14 @@ namespace Bullet
         protected int Damage { get; set; }
         protected float SpeedMultiplier { get; set; }
         protected string BulletType { get; set; }
-        
+
         #endregion
 
         public void SetDirection(Vector3 dir)
         {
             _direction = dir.normalized;
         }
-        
+
         private void FixedUpdate()
         {
             Move();
@@ -41,8 +41,13 @@ namespace Bullet
         {
             if (other.CompareTag("Player"))
             {
-                EventManager.Broadcast(GameEvent.OnHitTarget, Damage);
-                Debug.Log("Hit the enemy!");
+                var targetPhotonView = other.GetComponent<PhotonView>();
+                if (targetPhotonView != null && !targetPhotonView.IsMine)
+                {
+                    EventManager.Broadcast(GameEvent.OnHitTarget, other.gameObject, Damage);
+                    // other.GetComponent<Player.Player>().TakeDamage(Damage);
+                    Debug.Log("Hit the enemy!");
+                }
             }
             else if (other.CompareTag("Border"))
             {
