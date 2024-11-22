@@ -7,7 +7,8 @@ namespace Managers
     {
         OnHitTarget,
         OnJoinedRoom,
-        OnPropertiesAssigned
+        OnPropertiesAssigned,
+        OnGameOver
     }
 
     public static class EventManager

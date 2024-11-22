@@ -50,7 +50,7 @@ namespace Player
             EventManager.RemoveHandler(GameEvent.OnHitTarget, new Action<GameObject, int>(TakeDamage));
         }
 
-        public void TakeDamage(GameObject go, int damage)
+        private void TakeDamage(GameObject go, int damage)
         {
             if (go != gameObject) return;
 
@@ -58,16 +58,22 @@ namespace Player
 
             _photonView.RPC(nameof(SetPlayerHealthValues), RpcTarget.AllBuffered, health);
 
+            Debug.Log($"Enemy has {health} HP left!");
+
             if (_health <= 0)
             {
                 _photonView.RPC(nameof(HandleDeath), RpcTarget.AllBuffered);
+                Debug.Log("Enemy is dead!");
             }
         }
+
+        #region RPCMethods
 
         [PunRPC]
         public void HandleDeath()
         {
             Debug.Log("Game Over!");
+            EventManager.Broadcast(GameEvent.OnGameOver);
         }
 
         [PunRPC]
@@ -101,5 +107,7 @@ namespace Player
             _health = newHealthValue;
             _healthText.text = "HP: " + _health;
         }
+
+        #endregion
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using Managers;
 using Photon.Pun;
 using UnityEngine;
 using Weapon;
@@ -8,13 +9,23 @@ namespace Player
     public class PlayerCombat : MonoBehaviour
     {
         [SerializeField] private PhotonView _photonView;
-        
+
         [SerializeField] private GameObject[] _weapons;
         [SerializeField] private WeaponBase[] _weaponInstances;
 
         private WeaponBase _currentWeapon;
 
         private int _weaponIndex;
+
+        private void OnEnable()
+        {
+            EventManager.AddHandler(GameEvent.OnGameOver, new Action(OnGameOver));
+        }
+
+        private void OnDisable()
+        {
+            EventManager.RemoveHandler(GameEvent.OnGameOver, new Action(OnGameOver));
+        }
 
         private void Start()
         {
@@ -23,13 +34,17 @@ namespace Player
 
         private void Update()
         {
-            if(!_photonView.IsMine)
+            if (!_photonView.IsMine)
                 return;
 
             if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Alpha2))
             {
-                int weaponIndex = Input.GetKeyDown(KeyCode.Alpha1) ? 0 : 1;
+                var weaponIndex = Input.GetKeyDown(KeyCode.Alpha1) ? 0 : 1;
+                var weaponType = weaponIndex == 0 ? "Kar98!" : "AK-47!";
+                
                 _photonView.RPC(nameof(HandleWeaponSwitching), RpcTarget.AllBuffered, weaponIndex);
+
+                Debug.Log($"The weapon has been switched to {weaponType}");
             }
 
             if (Input.GetKeyDown(KeyCode.Space) || Input.GetKey(KeyCode.Space))
@@ -74,5 +89,10 @@ namespace Player
         }
 
         #endregion
+
+        private void OnGameOver()
+        {
+            enabled = false;
+        }
     }
 }

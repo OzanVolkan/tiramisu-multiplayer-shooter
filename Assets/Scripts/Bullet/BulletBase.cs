@@ -21,6 +21,16 @@ namespace Bullet
 
         #endregion
 
+        private void OnEnable()
+        {
+            EventManager.AddHandler(GameEvent.OnGameOver, new Action(OnGameOver));
+        }
+
+        private void OnDisable()
+        {
+            EventManager.RemoveHandler(GameEvent.OnGameOver, new Action(OnGameOver));
+        }
+
         public void SetDirection(Vector3 dir)
         {
             _direction = dir.normalized;
@@ -34,7 +44,6 @@ namespace Bullet
         private void Move()
         {
             transform.Translate(_direction * (Time.fixedDeltaTime * SpeedMultiplier * _baseSpeed));
-            Debug.Log($"Ping: {PhotonNetwork.GetPing()}ms");
         }
 
         private void OnTriggerEnter(Collider other)
@@ -45,7 +54,6 @@ namespace Bullet
                 if (targetPhotonView != null && !targetPhotonView.IsMine)
                 {
                     EventManager.Broadcast(GameEvent.OnHitTarget, other.gameObject, Damage);
-                    // other.GetComponent<Player.Player>().TakeDamage(Damage);
                     Debug.Log("Hit the enemy!");
                 }
             }
@@ -67,6 +75,11 @@ namespace Bullet
             if (!_photonView.IsMine) return;
 
             PoolingManager.Instance.ReturnObject(BulletType, gameObject);
+        }
+
+        private void OnGameOver()
+        {
+            _photonView.RPC(nameof(ReturnBullet), RpcTarget.AllBuffered);
         }
     }
 }

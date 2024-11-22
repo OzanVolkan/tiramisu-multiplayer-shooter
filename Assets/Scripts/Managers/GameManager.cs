@@ -7,7 +7,9 @@ namespace Managers
 {
     public class GameManager : SingletonManager<GameManager>
     {
+        [SerializeField] private PhotonView _photonView;
         [SerializeField] private GameObject _playerPrefab;
+        private bool _isGameOver;
 
         #region PlayerValues
 
@@ -33,12 +35,22 @@ namespace Managers
         {
             EventManager.AddHandler(GameEvent.OnJoinedRoom, new Action(AssignTeam));
             EventManager.AddHandler(GameEvent.OnPropertiesAssigned, new Action(CreatePlayer));
+            EventManager.AddHandler(GameEvent.OnGameOver, new Action(OnGameOver));
         }
 
         private void OnDisable()
         {
             EventManager.RemoveHandler(GameEvent.OnJoinedRoom, new Action(AssignTeam));
             EventManager.RemoveHandler(GameEvent.OnPropertiesAssigned, new Action(CreatePlayer));
+            EventManager.RemoveHandler(GameEvent.OnGameOver, new Action(OnGameOver));
+        }
+
+        private void FixedUpdate()
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                PhotonNetwork.LoadLevel(PhotonNetwork.CurrentRoom.Name);
+            }
         }
 
         private void CreatePlayer()
@@ -79,12 +91,40 @@ namespace Managers
 
         private void AssignTeam()
         {
-            if (PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("Team"))
+            if (PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("Team") &&
+                PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("Nickname"))
                 return;
 
             var assignedTeam = PhotonNetwork.CurrentRoom.PlayerCount - 1 % 2 == 0 ? _teamBlue : _teamRed;
-            Hashtable playerProperties = new Hashtable { { "Team", assignedTeam } };
+            var nickname = "Player" + PhotonNetwork.LocalPlayer.ActorNumber;
+
+            Hashtable playerProperties = new Hashtable
+            {
+                { "Team", assignedTeam },
+                { "Nickname", nickname }
+            };
             PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
+        }
+
+        private void OnGameOver()
+        {
+            if (_isGameOver) return;
+
+            _isGameOver = true;
+
+            _photonView.RPC(nameof(GameOverRPC), RpcTarget.AllBuffered);
+        }
+
+        //timeScale'i 0 yapmak istemedim, controlleri manuel olarak devredışı bıraktım. ***İngilizceye çevrilecek!!!
+        [PunRPC]
+        private void GameOverRPC()
+        {
+            ShowGameOverScreen();
+        }
+
+        private void ShowGameOverScreen()
+        {
+            // Game Over ekranını göster
         }
     }
 }
