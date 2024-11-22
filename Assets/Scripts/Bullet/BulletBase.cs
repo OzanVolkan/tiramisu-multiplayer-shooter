@@ -11,14 +11,20 @@ namespace Bullet
         [SerializeField] private PhotonView _photonView;
 
         private readonly float _baseSpeed = 5f;
+        private Vector3 _direction;
 
         #region Properties
 
         protected int Damage { get; set; }
         protected float SpeedMultiplier { get; set; }
         protected string BulletType { get; set; }
-
+        
         #endregion
+
+        public void SetDirection(Vector3 dir)
+        {
+            _direction = dir.normalized;
+        }
         
         private void FixedUpdate()
         {
@@ -27,7 +33,7 @@ namespace Bullet
 
         private void Move()
         {
-            transform.Translate(transform.right * (Time.fixedDeltaTime * SpeedMultiplier * _baseSpeed));
+            transform.Translate(_direction * (Time.fixedDeltaTime * SpeedMultiplier * _baseSpeed));
             Debug.Log($"Ping: {PhotonNetwork.GetPing()}ms");
         }
 
