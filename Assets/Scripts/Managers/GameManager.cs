@@ -45,14 +45,6 @@ namespace Managers
             EventManager.RemoveHandler(GameEvent.OnGameOver, new Action(OnGameOver));
         }
 
-        private void FixedUpdate()
-        {
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                PhotonNetwork.LoadLevel(PhotonNetwork.CurrentRoom.Name);
-            }
-        }
-
         private void CreatePlayer()
         {
             if (!PhotonNetwork.IsConnectedAndReady)
@@ -63,6 +55,8 @@ namespace Managers
 
             if (PhotonNetwork.InRoom)
             {
+                print("Create player!");
+                
                 GameObject newPlayer = PhotonNetwork.Instantiate(_playerPrefab.name, Vector3.zero, Quaternion.identity);
                 PhotonView photonView = newPlayer.GetComponent<PhotonView>();
 
@@ -91,17 +85,18 @@ namespace Managers
 
         private void AssignTeam()
         {
-            if (PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("Team") &&
-                PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("Nickname"))
+            print("Assign1");
+            
+            if (PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("Team"))
                 return;
 
+            print("Assign2");
+
             var assignedTeam = PhotonNetwork.CurrentRoom.PlayerCount - 1 % 2 == 0 ? _teamBlue : _teamRed;
-            var nickname = "Player" + PhotonNetwork.LocalPlayer.ActorNumber;
 
             Hashtable playerProperties = new Hashtable
             {
                 { "Team", assignedTeam },
-                { "Nickname", nickname }
             };
             PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
         }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ExitGames.Client.Photon;
 using UnityEngine;
 using Photon.Pun;
@@ -7,14 +8,17 @@ namespace Managers
 {
     public class NetworkManager : MonoBehaviourPunCallbacks
     {
-        private byte _maxPlayersPerRoom = 2;
+        private readonly byte _maxPlayersPerRoom = 2;
+        private string _lastRoomName;
+        private bool _isLeavingRoom;
+        private bool _isTryingToCreateRoom; 
 
         private void Start()
         {
             PhotonNetwork.ConnectUsingSettings();
 
-            PhotonNetwork.SendRate = 30; // Saniyede 30 kez veri gönder.
-            PhotonNetwork.SerializationRate = 15; // Senkronizasyon için saniyede 15 kez veri gönder.
+            PhotonNetwork.SendRate = 30;
+            PhotonNetwork.SerializationRate = 15;
         }
 
         public override void OnConnectedToMaster()
@@ -26,19 +30,28 @@ namespace Managers
         public override void OnJoinedLobby()
         {
             Debug.Log("Joined Lobby");
-            PhotonNetwork.JoinRandomRoom();
+
+            if (_isTryingToCreateRoom)
+            {
+                _isTryingToCreateRoom = false;
+                CreateNewRoom();
+            }
+            else
+            {
+                PhotonNetwork.JoinRandomRoom();
+            }
         }
 
         public override void OnJoinRandomFailed(short returncode, string message)
         {
             Debug.Log("Failed to join a room. Creating a new one.");
-            PhotonNetwork.CreateRoom(null, new RoomOptions { MaxPlayers = _maxPlayersPerRoom });
+            CreateNewRoom();
         }
 
         public override void OnJoinedRoom()
         {
             Debug.Log($"Joined Room: {PhotonNetwork.CurrentRoom.Name}");
-
+            _lastRoomName = PhotonNetwork.CurrentRoom.Name;
             EventManager.Broadcast(GameEvent.OnJoinedRoom);
         }
 
@@ -53,12 +66,103 @@ namespace Managers
             }
         }
 
-        public override void OnCreatedRoom()
+        public override void OnLeftRoom()
         {
-            // if (!PhotonNetwork.IsMasterClient)
-            //     return;
+            Debug.Log("Left the room. Attempting to join the lobby...");
+            _isTryingToCreateRoom = true;
 
-            // EventManager.Broadcast(GameEvent.OnCreatedRoom);
+            // Eğer lobide değilsek, lobiyi bekle
+            if (!PhotonNetwork.InLobby)
+            {
+                PhotonNetwork.JoinLobby();
+            }
         }
+
+        public override void OnRoomListUpdate(List<RoomInfo> roomList)
+        {
+            if (!_isTryingToCreateRoom)
+                return;
+
+            _isTryingToCreateRoom = false;
+
+            RoomInfo availableRoom = null;
+
+            foreach (var room in roomList)
+            {
+                if (room.RemovedFromList)
+                    continue;
+
+                // Eğer aynı isimli bir oda varsa atla
+                if (room.Name == _lastRoomName)
+                    continue;
+
+                if (room.PlayerCount < room.MaxPlayers)
+                {
+                    availableRoom = room;
+                    break;
+                }
+            }
+
+            if (availableRoom != null)
+            {
+                Debug.Log($"Joining available room: {availableRoom.Name}");
+                PhotonNetwork.JoinRoom(availableRoom.Name);
+            }
+            else
+            {
+                Debug.Log("No suitable room found. Creating a new one...");
+                CreateNewRoom();
+            }
+        }
+        
+        public void AttemptToCreateRoom()
+        {
+            if (!PhotonNetwork.IsConnectedAndReady)
+            {
+                Debug.Log("Waiting for connection to complete...");
+                _isTryingToCreateRoom = true;
+                return;
+            }
+
+            if (PhotonNetwork.InLobby)
+            {
+                CreateNewRoom();
+            }
+            else
+            {
+                Debug.Log("Joining lobby to create a new room...");
+                _isTryingToCreateRoom = true;
+                PhotonNetwork.JoinLobby();
+            }
+        }
+
+        private void CreateNewRoom()
+        {
+            if (!PhotonNetwork.IsConnectedAndReady)
+            {
+                Debug.LogError("Cannot create a room. Photon is not ready for operations.");
+                return;
+            }
+            
+            string userId = PhotonNetwork.LocalPlayer?.UserId ?? "Guest";
+            string uniqueRoomName = $"Room_{userId}_{System.DateTime.Now.Ticks}";
+            
+            RoomOptions roomOptions = new RoomOptions()
+            {
+                MaxPlayers = _maxPlayersPerRoom,
+                CleanupCacheOnLeave = true
+            };
+
+            _lastRoomName = uniqueRoomName;
+
+            PhotonNetwork.CreateRoom(uniqueRoomName, roomOptions);
+        }
+        
+        public override void OnDisconnected(DisconnectCause cause)
+        {
+            Debug.Log("Disconnected from Photon.");
+            _lastRoomName = null;
+        }
+        
     }
 }

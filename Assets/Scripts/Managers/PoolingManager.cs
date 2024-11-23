@@ -25,36 +25,49 @@ namespace Managers
         }
 
         [SerializeField] private List<Pool> _pools;
-        private Dictionary<string, Queue<GameObject>> _poolDictionary = new ();
-
-        //****BU LİSTE SİLİNECEK
-        public List<GameObject> testList;
+        private Dictionary<string, Queue<GameObject>> _poolDictionary = new();
 
         private void OnEnable()
         {
             EventManager.AddHandler(GameEvent.OnJoinedRoom, new Action(InitializePools));
+            EventManager.AddHandler(GameEvent.OnGameOver, new Action(ClearPools));
         }
 
         private void OnDisable()
         {
             EventManager.RemoveHandler(GameEvent.OnJoinedRoom, new Action(InitializePools));
+            EventManager.RemoveHandler(GameEvent.OnGameOver, new Action(ClearPools));
         }
 
         // Havuzları başlatır ve her nesne tipi için kuyruğu oluşturur.
         private void InitializePools()
         {
-            // if (!PhotonNetwork.IsMasterClient)
-            //     return;
-            
+            ClearPools();
+            // Tüm pool isimlerini kontrol et
             foreach (var pool in _pools)
             {
+                Debug.Log($"PoolName: {pool.PoolName}");
+            }
+            
+
+            
+            // if (!PhotonNetwork.IsMasterClient)
+            //     return;
+
+            foreach (var pool in _pools)
+            {
+                if (_poolDictionary.ContainsKey(pool.PoolName))
+                {
+                    Debug.LogWarning($"Pool with name '{pool.PoolName}' already exists. Skipping.");
+                    continue;
+                }
+                
                 Queue<GameObject> objectPool = new Queue<GameObject>();
 
                 for (int i = 0; i < pool.InitialPoolSize; i++)
                 {
                     GameObject obj = CreateNewObject(pool.Prefab);
                     objectPool.Enqueue(obj);
-                    testList.Add(obj);
                 }
 
                 _poolDictionary.Add(pool.PoolName, objectPool);
@@ -114,6 +127,23 @@ namespace Managers
             var newObj = PhotonNetwork.Instantiate(prefab.name, Vector3.up * 100f, Quaternion.identity);
             newObj.SetActive(false);
             return newObj;
+        }
+
+        private void ClearPools()
+        {
+            foreach (var poolName in _poolDictionary.Keys)
+            {
+                var objectQueue = _poolDictionary[poolName];
+
+                while (objectQueue.Count > 0)
+                {
+                    var obj = objectQueue.Dequeue();
+                    Destroy(obj);
+                }
+            }
+
+            _poolDictionary.Clear();
+            // _poolDictionary = null;
         }
     }
 }
