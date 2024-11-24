@@ -78,6 +78,7 @@ namespace Managers
                 newPlayer.transform.rotation = Quaternion.Euler(spawnRotation);
 
                 photonView.RPC("SetPlayerMat", RpcTarget.AllBuffered, team);
+                EventManager.Broadcast(GameEvent.OnGameStart);
             }
         }
 
@@ -101,6 +102,6 @@ namespace Managers
 
             _isGameOver = true;
         }
-
+        
     }
 }

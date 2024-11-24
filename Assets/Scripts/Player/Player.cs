@@ -38,7 +38,7 @@ namespace Player
 
             _photonView.RPC(nameof(SetPlayerCanvasTransformValues), RpcTarget.AllBuffered);
             _photonView.RPC(nameof(SetPlayerHealthValues), RpcTarget.AllBuffered, _maxHealth);
-
+            
         }
 
         private void OnEnable()
@@ -63,7 +63,9 @@ namespace Player
 
             if (_health <= 0)
             {
-                _photonView.RPC(nameof(HandleDeath), RpcTarget.AllBuffered);
+                var winnerTeam = (string)PhotonNetwork.LocalPlayer.CustomProperties["Team"];
+
+                _photonView.RPC(nameof(HandleDeath), RpcTarget.AllBuffered, winnerTeam);
                 Debug.Log("Enemy is dead!");
             }
         }
@@ -71,13 +73,11 @@ namespace Player
         #region RPCMethods
 
         [PunRPC]
-        public void HandleDeath()
+        public void HandleDeath(string winnerTeam)
         {
             Debug.Log("Game Over!");
             
-            //GÖNDERİYOR AMA İKİSİ DE KARŞI TAKIMI GÖNDERİYOR!!! RPC İLE ÇAĞIRMAZSAK BELKİ DOĞRU ÇALIŞIR?
-            //AMA O ZAMAN DA KARŞI TARAF ALMAYABİLİR
-            UIManager.Instance.WinnerTeam = (string)PhotonNetwork.PlayerListOthers[0].CustomProperties["Team"];
+            UIManager.Instance.WinnerTeam = winnerTeam;
             EventManager.Broadcast(GameEvent.OnGameOver);
         }
 

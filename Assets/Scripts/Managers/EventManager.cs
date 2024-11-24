@@ -5,10 +5,12 @@ namespace Managers
 {
     public enum GameEvent
     {
+        OnGameStart,
         OnHitTarget,
         OnJoinedRoom,
         OnPropertiesAssigned,
-        OnGameOver
+        OnGameOver,
+        OnRematch
     }
 
     public static class EventManager

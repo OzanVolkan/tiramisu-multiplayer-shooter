@@ -33,7 +33,6 @@ namespace Managers
 
             if (_lastRoomName != null)
             {
-                Debug.Log("ROOM COUNT: " + PhotonNetwork.CountOfRooms);
 
                 if (PhotonNetwork.CountOfRooms == 1)
                 {

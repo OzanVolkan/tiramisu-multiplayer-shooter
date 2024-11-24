@@ -30,13 +30,13 @@ namespace Managers
         private void OnEnable()
         {
             EventManager.AddHandler(GameEvent.OnJoinedRoom, new Action(InitializePools));
-            EventManager.AddHandler(GameEvent.OnGameOver, new Action(ClearPools));
+            EventManager.AddHandler(GameEvent.OnRematch, new Action(ClearPools));
         }
 
         private void OnDisable()
         {
             EventManager.RemoveHandler(GameEvent.OnJoinedRoom, new Action(InitializePools));
-            EventManager.RemoveHandler(GameEvent.OnGameOver, new Action(ClearPools));
+            EventManager.RemoveHandler(GameEvent.OnRematch, new Action(ClearPools));
         }
 
         // Havuzları başlatır ve her nesne tipi için kuyruğu oluşturur.
@@ -133,7 +133,6 @@ namespace Managers
             }
 
             _poolDictionary.Clear();
-            // _poolDictionary = null;
         }
     }
 }
