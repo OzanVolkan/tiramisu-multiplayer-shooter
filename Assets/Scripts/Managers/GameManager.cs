@@ -7,11 +7,12 @@ namespace Managers
 {
     public class GameManager : SingletonManager<GameManager>
     {
+        [Header("Photon")] 
         [SerializeField] private PhotonView _photonView;
-        [SerializeField] private GameObject _playerPrefab;
-        private bool _isGameOver;
 
-        #region PlayerValues
+        #region Player Values
+
+        [Header("Player")] [SerializeField] private GameObject _playerPrefab;
 
         private readonly Vector3 _blueTeamPos = new Vector3(-7.5f, 1f, 0f);
         private readonly Vector3 _redTeamPos = new Vector3(7.5f, 1f, 0f);
@@ -31,6 +32,8 @@ namespace Managers
 
         #endregion
 
+        private bool _isGameOver;
+
         private void OnEnable()
         {
             EventManager.AddHandler(GameEvent.OnJoinedRoom, new Action(AssignTeam));
@@ -45,6 +48,7 @@ namespace Managers
             EventManager.RemoveHandler(GameEvent.OnGameOver, new Action(OnGameOver));
         }
 
+        //Create players and assign their position, rotations and materials based to their teams
         private void CreatePlayer()
         {
             if (!PhotonNetwork.IsConnectedAndReady)
@@ -58,21 +62,10 @@ namespace Managers
                 GameObject newPlayer = PhotonNetwork.Instantiate(_playerPrefab.name, Vector3.zero, Quaternion.identity);
                 PhotonView photonView = newPlayer.GetComponent<PhotonView>();
 
-                Vector3 spawnPos = Vector3.zero;
-                Vector3 spawnRotation = Vector3.zero;
-
                 var team = (string)PhotonNetwork.LocalPlayer.CustomProperties["Team"];
 
-                if (team == _teamBlue)
-                {
-                    spawnPos = _blueTeamPos;
-                    spawnRotation = _blueTeamRotation;
-                }
-                else if (team == _teamRed)
-                {
-                    spawnPos = _redTeamPos;
-                    spawnRotation = _redTeamRotation;
-                }
+                var spawnPos = team == _teamBlue ? _blueTeamPos : _redTeamPos;
+                var spawnRotation = team == _teamBlue ? _blueTeamRotation : _redTeamRotation;
 
                 newPlayer.transform.position = spawnPos;
                 newPlayer.transform.rotation = Quaternion.Euler(spawnRotation);
@@ -82,12 +75,35 @@ namespace Managers
             }
         }
 
+        //Assign the player to a team as a custom property
         private void AssignTeam()
         {
             if (PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("Team"))
                 return;
 
-            var assignedTeam = PhotonNetwork.CurrentRoom.PlayerCount - 1 % 2 == 0 ? _teamBlue : _teamRed;
+            var assignedTeam = _teamBlue;
+
+            var blueTeamExists = false;
+            var redTeamExists = false;
+
+            foreach (var player in PhotonNetwork.PlayerList)
+            {
+                if (player.CustomProperties.ContainsKey("Team"))
+                {
+                    string team = (string)player.CustomProperties["Team"];
+                    if (team == _teamBlue) blueTeamExists = true;
+                    if (team == _teamRed) redTeamExists = true;
+                }
+            }
+
+            if (blueTeamExists)
+            {
+                assignedTeam = _teamRed;  // If Blue team exists, assign Red team
+            }
+            else if (redTeamExists)
+            {
+                assignedTeam = _teamBlue;  // If Red team exists, assign Blue team
+            }
 
             Hashtable playerProperties = new Hashtable
             {
@@ -102,6 +118,5 @@ namespace Managers
 
             _isGameOver = true;
         }
-        
     }
 }

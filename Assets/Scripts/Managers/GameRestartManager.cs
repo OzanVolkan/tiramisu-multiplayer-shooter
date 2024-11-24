@@ -7,25 +7,21 @@ namespace Managers
 {
     public class GameRestartManager : MonoBehaviour
     {
+        [Header("Photon")]
         [SerializeField] private PhotonView _photonView;
         
         private int _readyPlayerCount = 0;
         
-        private void OnEnable()
-        {
-            EventManager.AddHandler(GameEvent.OnRematch, new Action(PlayerReadyToRematch));
-        }
+        private void OnEnable() => EventManager.AddHandler(GameEvent.OnRematch, new Action(PlayerReadyToRematch));
 
-        private void OnDisable()
-        {
-            EventManager.RemoveHandler(GameEvent.OnRematch, new Action(PlayerReadyToRematch));
-        }
+        private void OnDisable() => EventManager.RemoveHandler(GameEvent.OnRematch, new Action(PlayerReadyToRematch));
 
         private void PlayerReadyToRematch()
         {
             _photonView.RPC(nameof(IncrementReadyCount), RpcTarget.All);
         }
 
+        //Check if both players are ready
         [PunRPC]
         private void IncrementReadyCount()
         {

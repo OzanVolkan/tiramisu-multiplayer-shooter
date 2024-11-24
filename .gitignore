@@ -74,3 +74,8 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+BuildTest/Tiramisu_MultiplayerShooter_Data/boot.config
+BuildTest/Tiramisu_MultiplayerShooter_Data/data.unity3d
+BuildTest/Tiramisu_MultiplayerShooter_Data/Managed/Assembly-CSharp.dll
+BuildTest/Tiramisu_MultiplayerShooter_Data/boot.config
+BuildTest/Tiramisu_MultiplayerShooter_Data/data.unity3d

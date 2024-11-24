@@ -28,7 +28,7 @@ namespace Managers
         public override void OnJoinedLobby()
         {
             Debug.Log("Joined Lobby");
-            
+
             if (_lastRoomName != null)
             {
                 if (PhotonNetwork.CountOfRooms == 1)

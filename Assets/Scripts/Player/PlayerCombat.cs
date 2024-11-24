@@ -8,29 +8,20 @@ namespace Player
 {
     public class PlayerCombat : MonoBehaviour
     {
+        [Header("Photon")] 
         [SerializeField] private PhotonView _photonView;
 
+        [Header("Weapons")]
         [SerializeField] private GameObject[] _weapons;
         [SerializeField] private WeaponBase[] _weaponInstances;
 
         private WeaponBase _currentWeapon;
 
-        private int _weaponIndex;
+        private void OnEnable() => EventManager.AddHandler(GameEvent.OnGameOver, new Action(OnGameOver));
 
-        private void OnEnable()
-        {
-            EventManager.AddHandler(GameEvent.OnGameOver, new Action(OnGameOver));
-        }
+        private void OnDisable() => EventManager.RemoveHandler(GameEvent.OnGameOver, new Action(OnGameOver));
 
-        private void OnDisable()
-        {
-            EventManager.RemoveHandler(GameEvent.OnGameOver, new Action(OnGameOver));
-        }
-
-        private void Start()
-        {
-            SetDefaultWeapon();
-        }
+        private void Start() => SetDefaultWeapon();
 
         private void Update()
         {
@@ -41,7 +32,7 @@ namespace Player
             {
                 var weaponIndex = Input.GetKeyDown(KeyCode.Alpha1) ? 0 : 1;
                 var weaponType = weaponIndex == 0 ? "Kar98!" : "AK-47!";
-                
+
                 _photonView.RPC(nameof(HandleWeaponSwitching), RpcTarget.AllBuffered, weaponIndex);
 
                 Debug.Log($"The weapon has been switched to {weaponType}");
@@ -79,8 +70,6 @@ namespace Player
                 _weapons[i].SetActive(i == index);
                 _currentWeapon = _weaponInstances[index];
             }
-
-            _weaponIndex = index;
         }
 
         private void SetDefaultWeapon()
@@ -90,9 +79,6 @@ namespace Player
 
         #endregion
 
-        private void OnGameOver()
-        {
-            enabled = false;
-        }
+        private void OnGameOver() => enabled = false;
     }
 }

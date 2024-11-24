@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace Bullet
 {
     public class BulletKar98 : BulletBase
@@ -10,6 +8,5 @@ namespace Bullet
             SpeedMultiplier = 3f;
             BulletType = "Kar98Bullets";
         }
-        
     }
 }

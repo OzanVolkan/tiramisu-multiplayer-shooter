@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace Bullet
 {
     public class BulletAk47 : BulletBase

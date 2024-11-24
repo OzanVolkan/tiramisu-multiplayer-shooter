@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using Photon.Pun;
 using UnityEngine;
 
@@ -8,7 +7,7 @@ namespace Managers
 {
     public class PoolingManager : SingletonManager<PoolingManager>
     {
-        [System.Serializable]
+        [Serializable]
         public class Pool
         {
             [SerializeField] private string _poolName;
@@ -39,7 +38,7 @@ namespace Managers
             EventManager.RemoveHandler(GameEvent.OnRematch, new Action(ClearPools));
         }
 
-        // Havuzları başlatır ve her nesne tipi için kuyruğu oluşturur.
+        // Initialize pools and queues for each type of bullet
         private void InitializePools()
         {
             ClearPools();
@@ -82,12 +81,11 @@ namespace Managers
             }
             else
             {
-                // Havuz boşsa yeni bir nesne oluştur
+                // Create a new object if pool is empty
                 Pool pool = _pools.Find(p => p.PoolName == poolName);
                 if (pool != null)
                 {
                     var obj = CreateNewObject(pool.Prefab);
-                    // objectPool.Enqueue(obj);
                     obj.SetActive(true);
                     return obj;
                 }

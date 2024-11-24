@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using Managers;
 using Photon.Pun;
 using UnityEngine;
@@ -8,10 +7,15 @@ namespace Bullet
 {
     public abstract class BulletBase : MonoBehaviour
     {
+        [Header("Photon")]
         [SerializeField] private PhotonView _photonView;
+
+        #region Private Fields
 
         private readonly float _baseSpeed = 5f;
         private Vector3 _direction;
+
+        #endregion
 
         #region Properties
 
@@ -21,52 +25,43 @@ namespace Bullet
 
         #endregion
 
-        private void OnEnable()
-        {
-            EventManager.AddHandler(GameEvent.OnGameOver, new Action(OnGameOver));
-        }
+        private void OnEnable() => EventManager.AddHandler(GameEvent.OnGameOver, new Action(OnGameOver));
 
-        private void OnDisable()
-        {
-            EventManager.RemoveHandler(GameEvent.OnGameOver, new Action(OnGameOver));
-        }
+        private void OnDisable() => EventManager.RemoveHandler(GameEvent.OnGameOver, new Action(OnGameOver));
 
-        public void SetDirection(Vector3 dir)
-        {
-            _direction = dir.normalized;
-        }
+        //Set bullet's directon according to player's global direction
+        public void SetDirection(Vector3 dir) => _direction = dir.normalized;
 
-        private void FixedUpdate()
-        {
-            Move();
-        }
+        private void FixedUpdate() => Move();
 
-        private void Move()
-        {
-            transform.Translate(_direction * (Time.fixedDeltaTime * SpeedMultiplier * _baseSpeed));
-        }
+        //Bullet movement
+        private void Move() => transform.Translate(_direction * (Time.fixedDeltaTime * SpeedMultiplier * _baseSpeed));
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag("Player"))
+            switch (other.tag)
             {
-                var targetPhotonView = other.GetComponent<PhotonView>();
-                if (targetPhotonView != null && !targetPhotonView.IsMine)
-                {
-                    EventManager.Broadcast(GameEvent.OnHitTarget, other.gameObject, Damage);
-                    Debug.Log("Hit the enemy!");
-                }
-            }
-            else if (other.CompareTag("Border"))
-            {
-                Debug.Log("Missed the target!");
-            }
-            else
-            {
-                return;
+                case "Player":
+                    HandlePlayerCollision(other);
+                    break;
+                case "Border":
+                    Debug.Log("Missed the target!");
+                    break;
+                default:
+                    return;
             }
 
             _photonView.RPC(nameof(ReturnBullet), RpcTarget.AllBuffered);
+        }
+
+        private void HandlePlayerCollision(Collider other)
+        {
+            var targetPhotonView = other.GetComponent<PhotonView>();
+            if (targetPhotonView != null && !targetPhotonView.IsMine)
+            {
+                EventManager.Broadcast(GameEvent.OnHitTarget, other.gameObject, Damage);
+                Debug.Log("Hit the enemy!");
+            }
         }
 
         [PunRPC]
@@ -77,9 +72,6 @@ namespace Bullet
             PoolingManager.Instance.ReturnObject(BulletType, gameObject);
         }
 
-        private void OnGameOver()
-        {
-            _photonView.RPC(nameof(ReturnBullet), RpcTarget.AllBuffered);
-        }
+        private void OnGameOver() => _photonView.RPC(nameof(ReturnBullet), RpcTarget.AllBuffered);
     }
 }

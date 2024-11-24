@@ -1,16 +1,13 @@
 using System;
-using System.Collections;
-using JetBrains.Annotations;
-using Photon.Pun;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Managers
 {
     public class UIManager : SingletonManager<UIManager>
     {
+        [Header("UI Elements")]
         [SerializeField] private GameObject _waitingRematchPanel;
         [SerializeField] private GameObject _gameOverPanel;
         [SerializeField] private TextMeshProUGUI _winnerText;
@@ -35,11 +32,14 @@ namespace Managers
             _rematchButton.onClick.AddListener(OnRematchButtonClicked);
         }
 
+        // Display the game over panel and show the winner
         private void OnGameOver()
         {
             _gameOverPanel.SetActive(true);
             _winnerText.text = WinnerTeam + " Player Wins!";
         }
+        
+        // Broadcast the rematch event and update UI visibility
         private void OnRematchButtonClicked()
         {
             EventManager.Broadcast(GameEvent.OnRematch);
@@ -47,6 +47,7 @@ namespace Managers
             _waitingRematchPanel.SetActive(true);
         }
 
+        // Hide the rematch waiting panel once the game starts
         private void OnGameStart()
         {
             _waitingRematchPanel.SetActive(false);
