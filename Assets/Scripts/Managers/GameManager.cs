@@ -100,20 +100,7 @@ namespace Managers
             if (_isGameOver) return;
 
             _isGameOver = true;
-
-            _photonView.RPC(nameof(GameOverRPC), RpcTarget.AllBuffered);
         }
 
-        //timeScale'i 0 yapmak istemedim, controlleri manuel olarak devredışı bıraktım. ***İngilizceye çevrilecek!!!
-        [PunRPC]
-        private void GameOverRPC()
-        {
-            ShowGameOverScreen();
-        }
-
-        private void ShowGameOverScreen()
-        {
-            // Game Over ekranını göster
-        }
     }
 }

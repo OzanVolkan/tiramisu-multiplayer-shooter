@@ -38,6 +38,7 @@ namespace Player
 
             _photonView.RPC(nameof(SetPlayerCanvasTransformValues), RpcTarget.AllBuffered);
             _photonView.RPC(nameof(SetPlayerHealthValues), RpcTarget.AllBuffered, _maxHealth);
+
         }
 
         private void OnEnable()
@@ -73,6 +74,10 @@ namespace Player
         public void HandleDeath()
         {
             Debug.Log("Game Over!");
+            
+            //GÖNDERİYOR AMA İKİSİ DE KARŞI TAKIMI GÖNDERİYOR!!! RPC İLE ÇAĞIRMAZSAK BELKİ DOĞRU ÇALIŞIR?
+            //AMA O ZAMAN DA KARŞI TARAF ALMAYABİLİR
+            UIManager.Instance.WinnerTeam = (string)PhotonNetwork.PlayerListOthers[0].CustomProperties["Team"];
             EventManager.Broadcast(GameEvent.OnGameOver);
         }
 
