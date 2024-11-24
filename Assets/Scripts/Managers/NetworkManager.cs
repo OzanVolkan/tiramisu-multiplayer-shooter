@@ -1,8 +1,9 @@
+using System.Collections;
 using System.Collections.Generic;
-using ExitGames.Client.Photon;
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 namespace Managers
 {
@@ -11,8 +12,7 @@ namespace Managers
         private readonly byte _maxPlayersPerRoom = 2;
         private string _lastRoomName;
         private bool _isLeavingRoom;
-        private bool _isTryingToCreateRoom; 
-
+        private bool _isTryingToCreateRoom;
         private void Start()
         {
             PhotonNetwork.ConnectUsingSettings();
@@ -31,10 +31,24 @@ namespace Managers
         {
             Debug.Log("Joined Lobby");
 
+            if (_lastRoomName != null)
+            {
+                Debug.Log("ROOM COUNT: " + PhotonNetwork.CountOfRooms);
+
+                if (PhotonNetwork.CountOfRooms == 1)
+                {
+                    AttemptToCreateRoom();
+                }
+                else if (PhotonNetwork.CountOfRooms > 1)
+                {
+                    PhotonNetwork.JoinRandomRoom();
+                }
+            }
+
             if (_isTryingToCreateRoom)
             {
                 _isTryingToCreateRoom = false;
-                CreateNewRoom();
+                AttemptToCreateRoom();
             }
             else
             {
@@ -45,7 +59,7 @@ namespace Managers
         public override void OnJoinRandomFailed(short returncode, string message)
         {
             Debug.Log("Failed to join a room. Creating a new one.");
-            CreateNewRoom();
+            AttemptToCreateRoom();
         }
 
         public override void OnJoinedRoom()
@@ -78,43 +92,6 @@ namespace Managers
             }
         }
 
-        public override void OnRoomListUpdate(List<RoomInfo> roomList)
-        {
-            if (!_isTryingToCreateRoom)
-                return;
-
-            _isTryingToCreateRoom = false;
-
-            RoomInfo availableRoom = null;
-
-            foreach (var room in roomList)
-            {
-                if (room.RemovedFromList)
-                    continue;
-
-                // Eğer aynı isimli bir oda varsa atla
-                if (room.Name == _lastRoomName)
-                    continue;
-
-                if (room.PlayerCount < room.MaxPlayers)
-                {
-                    availableRoom = room;
-                    break;
-                }
-            }
-
-            if (availableRoom != null)
-            {
-                Debug.Log($"Joining available room: {availableRoom.Name}");
-                PhotonNetwork.JoinRoom(availableRoom.Name);
-            }
-            else
-            {
-                Debug.Log("No suitable room found. Creating a new one...");
-                CreateNewRoom();
-            }
-        }
-        
         public void AttemptToCreateRoom()
         {
             if (!PhotonNetwork.IsConnectedAndReady)
@@ -143,13 +120,14 @@ namespace Managers
                 Debug.LogError("Cannot create a room. Photon is not ready for operations.");
                 return;
             }
-            
+
             string userId = PhotonNetwork.LocalPlayer?.UserId ?? "Guest";
             string uniqueRoomName = $"Room_{userId}_{System.DateTime.Now.Ticks}";
-            
+
             RoomOptions roomOptions = new RoomOptions()
             {
                 MaxPlayers = _maxPlayersPerRoom,
+                EmptyRoomTtl = 0,
                 CleanupCacheOnLeave = true
             };
 
@@ -157,12 +135,20 @@ namespace Managers
 
             PhotonNetwork.CreateRoom(uniqueRoomName, roomOptions);
         }
-        
+
         public override void OnDisconnected(DisconnectCause cause)
         {
-            Debug.Log("Disconnected from Photon.");
+            Debug.Log("Disconnected from Photon. Attempting to reconnect...");
+            PhotonNetwork.ConnectUsingSettings();
             _lastRoomName = null;
+
+            // Bağlantıdan sonra yeni bir oda oluşturmayı dene
+            AttemptToCreateRoom();
         }
-        
+
+        public override void OnCreatedRoom()
+        {
+            Debug.Log("Created room");
+        }
     }
 }

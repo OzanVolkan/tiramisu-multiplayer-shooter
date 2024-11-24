@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,12 +11,7 @@ namespace Managers
     {
         [SerializeField] private GameObject _gameOverPanel;
         [SerializeField] private Button _rematchButton;
-
-        private void Start()
-        {
-            print("BAŞLADIIII");
-        }
-
+        
         private void OnEnable()
         {
             EventManager.AddHandler(GameEvent.OnGameOver, new Action(OnGameOver));
@@ -24,6 +20,11 @@ namespace Managers
         private void OnDisable()
         {
             EventManager.RemoveHandler(GameEvent.OnGameOver, new Action(OnGameOver));
+        }
+        
+        private void Start()
+        {
+            _rematchButton.onClick.AddListener(OnRematchButtonClicked);
         }
 
         private void OnGameOver()
@@ -35,22 +36,35 @@ namespace Managers
         {
             if (Input.GetKeyDown(KeyCode.R))
             {
-                PhotonNetwork.RemovePlayerCustomProperties(new[] { "Team" });
-                PhotonNetwork.LeaveRoom();
-
-
-                // if (PhotonNetwork.IsMasterClient)
-                // {
-                //     print("Rye basıldı");
-                //     GetComponent<PhotonView>().RPC(nameof(RematchBaby), RpcTarget.AllBuffered);
-                // }
+                StartCoroutine(Rematch(0));
             }
         }
 
-        [PunRPC]
-        public void RematchBaby()
+        private void OnRematchButtonClicked()
         {
+            //BİRİ ODADAN AYRILINCA MASTER CLIENT OLMA HAKKI DİĞERİNE GEÇİYOR!! İSTEDİĞİMİ SONUCA ULAŞAMIYORUZ
+            //TAKIMA GÖRE KONTROL ŞARTI KOYABİLİRİZ ÖRN. RED TEAM İSE 5 SN DELAY?
+            if (PhotonNetwork.IsMasterClient)
+            {
+                _gameOverPanel.SetActive(false);
+                StartCoroutine(Rematch(0f));
+
+            }
+            else
+            {
+                _gameOverPanel.SetActive(false);
+                StartCoroutine(Rematch(5f));
+            }
+        }
+
+        //bunu network managera taşı ve eventi tetikle
+        
+        private IEnumerator Rematch(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            PhotonNetwork.RemovePlayerCustomProperties(new[] { "Team" });
             PhotonNetwork.LeaveRoom();
         }
+        
     }
 }

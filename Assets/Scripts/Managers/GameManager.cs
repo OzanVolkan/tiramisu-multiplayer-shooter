@@ -55,8 +55,6 @@ namespace Managers
 
             if (PhotonNetwork.InRoom)
             {
-                print("Create player!");
-                
                 GameObject newPlayer = PhotonNetwork.Instantiate(_playerPrefab.name, Vector3.zero, Quaternion.identity);
                 PhotonView photonView = newPlayer.GetComponent<PhotonView>();
 
@@ -85,12 +83,8 @@ namespace Managers
 
         private void AssignTeam()
         {
-            print("Assign1");
-            
             if (PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("Team"))
                 return;
-
-            print("Assign2");
 
             var assignedTeam = PhotonNetwork.CurrentRoom.PlayerCount - 1 % 2 == 0 ? _teamBlue : _teamRed;
 

@@ -614,7 +614,6 @@ MonoBehaviour:
     _prefab: {fileID: 3258814744026676096, guid: 5a07d138da104b44aad8b2975a47bfe1,
       type: 3}
     _initialPoolSize: 20
-  testList: []
 --- !u!114 &373139001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1054,7 +1053,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _gameOverPanel: {fileID: 332296065}
-  _rematchButton: {fileID: 0}
+  _rematchButton: {fileID: 315797157}
 --- !u!114 &1005218744
 MonoBehaviour:
   m_ObjectHideFlags: 0

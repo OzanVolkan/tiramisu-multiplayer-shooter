@@ -43,16 +43,6 @@ namespace Managers
         private void InitializePools()
         {
             ClearPools();
-            // Tüm pool isimlerini kontrol et
-            foreach (var pool in _pools)
-            {
-                Debug.Log($"PoolName: {pool.PoolName}");
-            }
-            
-
-            
-            // if (!PhotonNetwork.IsMasterClient)
-            //     return;
 
             foreach (var pool in _pools)
             {
